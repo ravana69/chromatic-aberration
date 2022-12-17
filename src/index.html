@@ -1,0 +1,63 @@
+<canvas id="canvas"></canvas>
+
+<script id="vert-shader" type="x-shader/x-vertex">
+  // gets the current position
+  attribute vec4 a_position;
+
+  void main() {
+   	// returns the position
+   	gl_Position = a_position;
+  }
+</script>
+
+<script id="frag-shader" type="x-shader/x-fragment">
+
+#define PI 3.1415926535897932384626433832795
+#define HALF_PI 1.57079632679
+
+precision mediump float;
+
+uniform vec2 u_resolution;
+uniform float time;
+
+void main() {
+
+	vec3 color = vec3(1.0, 1.0, 1.0);
+     vec2 uvcopy;
+	float distance;
+     float offset = time;
+     
+     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+     
+     uv = ((uv - 0.5) * 2.0);
+     
+	for(int i=0; i <= 2; i++) {
+
+		vec2 uvcopy = uv;
+
+          if (u_resolution.y > u_resolution.x ) {
+               uvcopy.y *= u_resolution.y / u_resolution.x;
+          } else {
+               uvcopy.x *= u_resolution.x / u_resolution.y;
+          }
+          
+     	distance = length(uvcopy) * 2.0;
+     
+		//offset += (cos(time) * 0.1) + 0.05;
+          offset -= 0.1;
+          
+		uvcopy += uvcopy / distance;
+          
+          uvcopy *= abs(sin(-offset) + 2.0);
+          uvcopy *= abs(sin((distance * 2.0) - offset));
+          uvcopy *= abs(cos((distance * 1.0) - offset));
+          
+          uvcopy.x += sin(time * 0.2) * 4.0;
+          uvcopy.y += cos(time * 0.2) * 4.0;
+          
+		color[i] /= abs(length(mod(uvcopy, 1.0) - 0.5)) / 0.1;
+	}
+     
+	gl_FragColor = vec4(color / distance, 1.0);
+}
+</script>
